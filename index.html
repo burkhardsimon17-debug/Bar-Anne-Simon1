@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bar Luxe</title>
+
+<style>
+body {
+  margin: 0;
+  font-family: "Arial";
+  background: #0b0b0f;
+  color: white;
+}
+
+header {
+  text-align: center;
+  padding: 25px;
+}
+
+h1 {
+  font-weight: 300;
+  letter-spacing: 2px;
+}
+
+.filters {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 10px;
+}
+
+button {
+  background: #1c1c22;
+  color: white;
+  border: 1px solid #333;
+  padding: 8px 14px;
+  border-radius: 30px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+button:hover {
+  background: #333;
+}
+
+button.active {
+  background: #d4af37;
+  color: #0b0b0f;
+  border-color: #d4af37;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  padding: 15px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.card {
+  background: #15151c;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+  transition: transform 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+}
+
+.card img {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+}
+
+.content {
+  padding: 12px;
+}
+
+.cat {
+  font-size: 11px;
+  opacity: 0.6;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+h3 {
+  margin: 5px 0 0 0;
+  font-weight: 400;
+}
+
+.badge {
+  display: inline-block;
+  margin-top: 5px;
+  font-size: 10px;
+  padding: 3px 8px;
+  border-radius: 20px;
+  background: #222;
+}
+
+.badge.available {
+  background: #2d5016;
+  color: #90ee90;
+}
+
+.badge.unavailable {
+  background: #4a1111;
+  color: #ff6b6b;
+}
+
+.loading {
+  text-align: center;
+  padding: 40px;
+  opacity: 0.6;
+}
+
+.error {
+  text-align: center;
+  padding: 40px;
+  color: #ff6b6b;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h1>🍸 BAR LUXE</h1>
+</header>
+
+<div class="filters">
+  <button onclick="filter('all')" class="active">Tout</button>
+  <button onclick="filter('Cocktail')">Cocktails</button>
+  <button onclick="filter('Bière')">Bières</button>
+  <button onclick="filter('Vin')">Vins</button>
+  <button onclick="filter('Spiritueux')">Spiritueux</button>
+  <button onclick="filter('Soft')">Softs</button>
+</div>
+
+<div class="grid" id="menu">
+  <div class="loading">Chargement du menu...</div>
+</div>
+
+<script>
+
+const SHEET_URL = "https://docs.google.com/spreadsheets/d/14WJ0G3f5frHAuu_1nt84rzOG8_ElEVEPudZHZgd0Dnw/export?format=csv";
+
+let dataGlobal = [];
+let currentFilter = 'all';
+
+fetch(SHEET_URL)
+.then(r => r.text())
+.then(data => {
+  const rows = data.split("\n").slice(1);
+
+  rows.forEach(r => {
+    if(r.trim() === "") return;
+    
+    const parts = r.split(",");
+    if(parts.length < 4) return;
+
+    const nom = parts[0].trim();
+    const cat = parts[1].trim();
+    const stock = parseInt(parts[2].trim()) || 0;
+    const img = parts[3].trim();
+
+    if(nom && cat && img) {
+      dataGlobal.push({nom, cat, stock, img, available: stock > 0});
+    }
+  });
+
+  render(dataGlobal);
+})
+.catch(err => {
+  console.error("Erreur de chargement:", err);
+  const menu = document.getElementById("menu");
+  menu.innerHTML = '<div class="error">❌ Erreur lors du chargement du menu. Vérifiez l\'URL du CSV.</div>';
+});
+
+function render(data){
+  const menu = document.getElementById("menu");
+  menu.innerHTML = "";
+
+  if(data.length === 0) {
+    menu.innerHTML = '<div class="loading">Aucun produit disponible</div>';
+    return;
+  }
+
+  data.forEach(d => {
+    const badgeClass = d.available ? 'available' : 'unavailable';
+    const badgeText = d.available ? '✓ Disponible' : '✕ Rupture';
+    
+    menu.innerHTML += `
+      <div class="card">
+        <img src="${d.img}" alt="${d.nom}" onerror="this.src='https://via.placeholder.com/400x180?text=Image+non+disponible'">
+        <div class="content">
+          <div class="cat">${d.cat}</div>
+          <h3>${d.nom}</h3>
+          <div class="badge ${badgeClass}">${badgeText}</div>
+        </div>
+      </div>
+    `;
+  });
+}
+
+function filter(cat){
+  currentFilter = cat;
+  
+  // Update button states
+  document.querySelectorAll('button').forEach(btn => {
+    btn.classList.remove('active');
+  });
+  event.target.classList.add('active');
+
+  if(cat === "all"){
+    render(dataGlobal);
+  } else {
+    render(dataGlobal.filter(d => d.cat === cat));
+  }
+}
+
+</script>
+
+</body>
+</html>
