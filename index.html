@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Bar Luxe</title>
+<title>Anne & Simon</title>
 
 <style>
 body {
@@ -21,6 +21,7 @@ header {
 h1 {
   font-weight: 300;
   letter-spacing: 2px;
+  font-size: 28px;
 }
 
 .filters {
@@ -131,16 +132,18 @@ h3 {
 <body>
 
 <header>
-  <h1>🍸 BAR LUXE</h1>
+  <h1>🍸 Bienvenue chez Anne & Simon</h1>
 </header>
 
 <div class="filters">
   <button onclick="filter('all')" class="active">Tout</button>
-  <button onclick="filter('Cocktail')">Cocktails</button>
-  <button onclick="filter('Bière')">Bières</button>
-  <button onclick="filter('Vin')">Vins</button>
+  <button onclick="filter('Signatures')">Signatures</button>
+  <button onclick="filter('Cocktails')">Cocktails</button>
+  <button onclick="filter('Vins')">Vins</button>
   <button onclick="filter('Spiritueux')">Spiritueux</button>
-  <button onclick="filter('Soft')">Softs</button>
+  <button onclick="filter('Bières')">Bières</button>
+  <button onclick="filter('Sans alcool')">Sans alcool</button>
+  <button onclick="filter('After dinner')">After dinner</button>
 </div>
 
 <div class="grid" id="menu">
@@ -149,38 +152,58 @@ h3 {
 
 <script>
 
-const SHEET_URL = "https://docs.google.com/spreadsheets/d/14WJ0G3f5frHAuu_1nt84rzOG8_ElEVEPudZHZgd0Dnw/export?format=csv";
+// URL corrigée pour Google Sheets avec CORS bypass
+const SHEET_ID = "14WJ0G3f5frHAuu_1nt84rzOG8_ElEVEPudZHZgd0Dnw";
+const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv`;
 
 let dataGlobal = [];
 let currentFilter = 'all';
 
+// Fetch avec gestion CORS
 fetch(SHEET_URL)
-.then(r => r.text())
+.then(r => {
+  if (!r.ok) throw new Error(`HTTP error! status: ${r.status}`);
+  return r.text();
+})
 .then(data => {
-  const rows = data.split("\n").slice(1);
+  console.log("CSV chargé avec succès");
+  const rows = data.split("\n").filter(row => row.trim() !== "");
+  
+  // Sauter la première ligne si elle contient les headers
+  const startIdx = rows[0].toLowerCase().includes("nom") ? 1 : 0;
 
-  rows.forEach(r => {
-    if(r.trim() === "") return;
-    
-    const parts = r.split(",");
-    if(parts.length < 4) return;
+  rows.slice(startIdx).forEach((r, idx) => {
+    try {
+      const parts = r.split(",").map(p => p.trim());
+      
+      if(parts.length < 4) {
+        console.warn(`Ligne ${idx} ignorée: pas assez de colonnes`);
+        return;
+      }
 
-    const nom = parts[0].trim();
-    const cat = parts[1].trim();
-    const stock = parseInt(parts[2].trim()) || 0;
-    const img = parts[3].trim();
+      const nom = parts[0];
+      const cat = parts[1];
+      const stock = parseInt(parts[2]) || 0;
+      const img = parts[3];
 
-    if(nom && cat && img) {
-      dataGlobal.push({nom, cat, stock, img, available: stock > 0});
+      if(nom && cat && img) {
+        dataGlobal.push({nom, cat, stock, img, available: stock > 0});
+      }
+    } catch(e) {
+      console.warn(`Erreur parsing ligne ${idx}:`, e);
     }
   });
 
+  console.log(`${dataGlobal.length} boissons chargées`);
   render(dataGlobal);
 })
 .catch(err => {
-  console.error("Erreur de chargement:", err);
+  console.error("Erreur de chargement CSV:", err);
   const menu = document.getElementById("menu");
-  menu.innerHTML = '<div class="error">❌ Erreur lors du chargement du menu. Vérifiez l\'URL du CSV.</div>';
+  menu.innerHTML = `<div class="error">
+    ❌ Erreur: Impossible de charger le menu depuis Google Sheets<br>
+    <small>Vérifiez que le lien CSV est accessible</small>
+  </div>`;
 });
 
 function render(data){
