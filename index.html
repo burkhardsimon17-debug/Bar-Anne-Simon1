@@ -6,125 +6,145 @@
 <title>Anne & Simon</title>
 
 <style>
-body {
+* {
   margin: 0;
-  font-family: "Arial";
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Garamond", "Georgia", serif;
   background: #0b0b0f;
-  color: white;
+  color: #e0e0e0;
 }
 
 header {
   text-align: center;
-  padding: 25px;
+  padding: 60px 20px 40px;
+  border-bottom: 1px solid #2a2a2f;
 }
 
 h1 {
   font-weight: 300;
+  letter-spacing: 3px;
+  font-size: 32px;
+  margin-bottom: 10px;
+  color: #ffffff;
+}
+
+.subtitle {
+  font-size: 12px;
   letter-spacing: 2px;
-  font-size: 28px;
+  opacity: 0.5;
+  text-transform: uppercase;
 }
 
 .filters {
   display: flex;
   justify-content: center;
   flex-wrap: wrap;
-  gap: 8px;
-  padding: 10px;
+  gap: 20px;
+  padding: 30px 20px;
+  border-bottom: 1px solid #2a2a2f;
 }
 
 button {
-  background: #1c1c22;
-  color: white;
-  border: 1px solid #333;
-  padding: 8px 14px;
-  border-radius: 30px;
-  font-size: 12px;
+  background: transparent;
+  color: #b8b8b8;
+  border: none;
+  padding: 0;
+  font-family: "Garamond", "Georgia", serif;
+  font-size: 13px;
+  letter-spacing: 1px;
   cursor: pointer;
-  transition: background 0.3s ease;
+  transition: color 0.3s ease;
+  text-transform: uppercase;
+  font-weight: 300;
 }
 
 button:hover {
-  background: #333;
+  color: #d4af37;
 }
 
 button.active {
-  background: #d4af37;
-  color: #0b0b0f;
-  border-color: #d4af37;
+  color: #d4af37;
+  border-bottom: 1px solid #d4af37;
+  padding-bottom: 5px;
 }
 
-.grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 12px;
-  padding: 15px;
-  max-width: 800px;
+.container {
+  max-width: 700px;
   margin: 0 auto;
+  padding: 40px 20px;
 }
 
-.card {
-  background: #15151c;
-  border-radius: 16px;
-  overflow: hidden;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.4);
-  transition: transform 0.3s ease;
+.category-section {
+  margin-bottom: 50px;
 }
 
-.card:hover {
-  transform: translateY(-5px);
-}
-
-.card img {
-  width: 100%;
-  height: 180px;
-  object-fit: cover;
-}
-
-.content {
-  padding: 12px;
-}
-
-.cat {
-  font-size: 11px;
-  opacity: 0.6;
+.category-title {
+  font-size: 14px;
+  letter-spacing: 2px;
   text-transform: uppercase;
-  letter-spacing: 1px;
+  color: #d4af37;
+  margin-bottom: 25px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #2a2a2f;
 }
 
-h3 {
-  margin: 5px 0 0 0;
+.item {
+  margin-bottom: 20px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #1a1a1f;
+}
+
+.item:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.item-name {
+  font-size: 14px;
+  color: #ffffff;
+  margin-bottom: 2px;
   font-weight: 400;
 }
 
-.badge {
-  display: inline-block;
-  margin-top: 5px;
-  font-size: 10px;
-  padding: 3px 8px;
-  border-radius: 20px;
-  background: #222;
+.item-status {
+  font-size: 11px;
+  letter-spacing: 1px;
+  color: #999;
 }
 
-.badge.available {
-  background: #2d5016;
-  color: #90ee90;
+.item-status.available {
+  color: #7fb069;
 }
 
-.badge.unavailable {
-  background: #4a1111;
-  color: #ff6b6b;
+.item-status.unavailable {
+  color: #b85c5c;
 }
 
 .loading {
   text-align: center;
-  padding: 40px;
-  opacity: 0.6;
+  padding: 60px 20px;
+  opacity: 0.5;
+  font-size: 13px;
+  letter-spacing: 1px;
 }
 
 .error {
   text-align: center;
-  padding: 40px;
-  color: #ff6b6b;
+  padding: 60px 20px;
+  color: #b85c5c;
+  font-size: 13px;
+}
+
+.empty-message {
+  text-align: center;
+  padding: 40px 20px;
+  opacity: 0.5;
+  font-size: 13px;
 }
 </style>
 </head>
@@ -132,12 +152,12 @@ h3 {
 <body>
 
 <header>
-  <h1>🍸 Bienvenue chez Anne & Simon</h1>
+  <h1>ANNE & SIMON</h1>
+  <div class="subtitle">Carte des Spiritueux</div>
 </header>
 
 <div class="filters">
-  <button onclick="filter('all')" class="active">Tout</button>
-  <button onclick="filter('Signatures')">Signatures</button>
+  <button onclick="filter('all')" class="active">Tous</button>
   <button onclick="filter('Cocktails')">Cocktails</button>
   <button onclick="filter('Vins')">Vins</button>
   <button onclick="filter('Spiritueux')">Spiritueux</button>
@@ -146,20 +166,18 @@ h3 {
   <button onclick="filter('After dinner')">After dinner</button>
 </div>
 
-<div class="grid" id="menu">
+<div class="container" id="menu">
   <div class="loading">Chargement du menu...</div>
 </div>
 
 <script>
 
-// URL corrigée pour Google Sheets avec CORS bypass
 const SHEET_ID = "14WJ0G3f5frHAuu_1nt84rzOG8_ElEVEPudZHZgd0Dnw";
 const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv`;
 
 let dataGlobal = [];
 let currentFilter = 'all';
 
-// Fetch avec gestion CORS
 fetch(SHEET_URL)
 .then(r => {
   if (!r.ok) throw new Error(`HTTP error! status: ${r.status}`);
@@ -169,14 +187,13 @@ fetch(SHEET_URL)
   console.log("CSV chargé avec succès");
   const rows = data.split("\n").filter(row => row.trim() !== "");
   
-  // Sauter la première ligne si elle contient les headers
   const startIdx = rows[0].toLowerCase().includes("nom") ? 1 : 0;
 
   rows.slice(startIdx).forEach((r, idx) => {
     try {
       const parts = r.split(",").map(p => p.trim());
       
-      if(parts.length < 4) {
+      if(parts.length < 3) {
         console.warn(`Ligne ${idx} ignorée: pas assez de colonnes`);
         return;
       }
@@ -184,10 +201,9 @@ fetch(SHEET_URL)
       const nom = parts[0];
       const cat = parts[1];
       const stock = parseInt(parts[2]) || 0;
-      const img = parts[3];
 
-      if(nom && cat && img) {
-        dataGlobal.push({nom, cat, stock, img, available: stock > 0});
+      if(nom && cat) {
+        dataGlobal.push({nom, cat, stock, available: stock > 0});
       }
     } catch(e) {
       console.warn(`Erreur parsing ligne ${idx}:`, e);
@@ -201,8 +217,7 @@ fetch(SHEET_URL)
   console.error("Erreur de chargement CSV:", err);
   const menu = document.getElementById("menu");
   menu.innerHTML = `<div class="error">
-    ❌ Erreur: Impossible de charger le menu depuis Google Sheets<br>
-    <small>Vérifiez que le lien CSV est accessible</small>
+    ❌ Erreur: Impossible de charger le menu
   </div>`;
 });
 
@@ -211,24 +226,47 @@ function render(data){
   menu.innerHTML = "";
 
   if(data.length === 0) {
-    menu.innerHTML = '<div class="loading">Aucun produit disponible</div>';
+    menu.innerHTML = '<div class="empty-message">Aucun produit disponible</div>';
     return;
   }
 
-  data.forEach(d => {
-    const badgeClass = d.available ? 'available' : 'unavailable';
-    const badgeText = d.available ? '✓ Disponible' : '✕ Rupture';
+  // Grouper par catégorie
+  const grouped = {};
+  data.forEach(item => {
+    if(!grouped[item.cat]) {
+      grouped[item.cat] = [];
+    }
+    grouped[item.cat].push(item);
+  });
+
+  // Afficher par catégorie
+  Object.keys(grouped).forEach(cat => {
+    const section = document.createElement('div');
+    section.className = 'category-section';
     
-    menu.innerHTML += `
-      <div class="card">
-        <img src="${d.img}" alt="${d.nom}" onerror="this.src='https://via.placeholder.com/400x180?text=Image+non+disponible'">
-        <div class="content">
-          <div class="cat">${d.cat}</div>
-          <h3>${d.nom}</h3>
-          <div class="badge ${badgeClass}">${badgeText}</div>
-        </div>
-      </div>
-    `;
+    const title = document.createElement('div');
+    title.className = 'category-title';
+    title.textContent = cat;
+    section.appendChild(title);
+
+    grouped[cat].forEach(item => {
+      const itemDiv = document.createElement('div');
+      itemDiv.className = 'item';
+      
+      const name = document.createElement('div');
+      name.className = 'item-name';
+      name.textContent = item.nom;
+      itemDiv.appendChild(name);
+
+      const status = document.createElement('div');
+      status.className = `item-status ${item.available ? 'available' : 'unavailable'}`;
+      status.textContent = item.available ? '✓ Disponible' : '✕ Rupture';
+      itemDiv.appendChild(status);
+
+      section.appendChild(itemDiv);
+    });
+
+    menu.appendChild(section);
   });
 }
 
@@ -241,11 +279,57 @@ function filter(cat){
   });
   event.target.classList.add('active');
 
-  if(cat === "all"){
-    render(dataGlobal);
-  } else {
-    render(dataGlobal.filter(d => d.cat === cat));
+  const menu = document.getElementById("menu");
+  menu.innerHTML = "";
+
+  let filteredData = dataGlobal;
+  if(cat !== "all"){
+    filteredData = dataGlobal.filter(d => d.cat === cat);
   }
+
+  if(filteredData.length === 0) {
+    menu.innerHTML = '<div class="empty-message">Aucun produit dans cette catégorie</div>';
+    return;
+  }
+
+  // Grouper par catégorie
+  const grouped = {};
+  filteredData.forEach(item => {
+    if(!grouped[item.cat]) {
+      grouped[item.cat] = [];
+    }
+    grouped[item.cat].push(item);
+  });
+
+  // Afficher par catégorie
+  Object.keys(grouped).forEach(c => {
+    const section = document.createElement('div');
+    section.className = 'category-section';
+    
+    const title = document.createElement('div');
+    title.className = 'category-title';
+    title.textContent = c;
+    section.appendChild(title);
+
+    grouped[c].forEach(item => {
+      const itemDiv = document.createElement('div');
+      itemDiv.className = 'item';
+      
+      const name = document.createElement('div');
+      name.className = 'item-name';
+      name.textContent = item.nom;
+      itemDiv.appendChild(name);
+
+      const status = document.createElement('div');
+      status.className = `item-status ${item.available ? 'available' : 'unavailable'}`;
+      status.textContent = item.available ? '✓ Disponible' : '✕ Rupture';
+      itemDiv.appendChild(status);
+
+      section.appendChild(itemDiv);
+    });
+
+    menu.appendChild(section);
+  });
 }
 
 </script>
