@@ -363,6 +363,11 @@ function render(data){
     }
   });
 
+  // Trier chaque catégorie alphabétiquement
+  allCategories.forEach(cat => {
+    grouped[cat].sort((a, b) => a.nom.localeCompare(b.nom));
+  });
+
   // Afficher par catégorie
   allCategories.forEach(cat => {
     if(grouped[cat].length > 0) {
@@ -425,6 +430,11 @@ function filter(cat){
       grouped[item.cat] = [];
     }
     grouped[item.cat].push(item);
+  });
+
+  // Trier chaque catégorie alphabétiquement
+  Object.keys(grouped).forEach(c => {
+    grouped[c].sort((a, b) => a.nom.localeCompare(b.nom));
   });
 
   // Afficher par catégorie
