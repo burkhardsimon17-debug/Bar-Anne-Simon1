@@ -22,6 +22,18 @@ header {
   text-align: center;
   padding: 60px 20px 40px;
   border-bottom: 1px solid #2a2a2f;
+  animation: fadeIn 0.8s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 h1 {
@@ -46,30 +58,61 @@ h1 {
   gap: 20px;
   padding: 30px 20px;
   border-bottom: 1px solid #2a2a2f;
+  animation: slideDown 0.6s ease-out 0.2s both;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 button {
   background: transparent;
   color: #b8b8b8;
   border: none;
-  padding: 0;
+  padding: 8px 0;
   font-family: "Garamond", "Georgia", serif;
   font-size: 13px;
   letter-spacing: 1px;
   cursor: pointer;
-  transition: color 0.3s ease;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   text-transform: uppercase;
   font-weight: 300;
+  position: relative;
+  overflow: hidden;
+}
+
+button::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 1px;
+  background: #d4af37;
+  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 button:hover {
   color: #d4af37;
 }
 
+button:hover::after {
+  width: 100%;
+}
+
 button.active {
   color: #d4af37;
-  border-bottom: 1px solid #d4af37;
-  padding-bottom: 5px;
+}
+
+button.active::after {
+  width: 100%;
 }
 
 .container {
@@ -80,7 +123,27 @@ button.active {
 
 .category-section {
   margin-bottom: 50px;
+  animation: fadeInUp 0.6s ease-out forwards;
+  opacity: 0;
 }
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.category-section:nth-child(1) { animation-delay: 0s; }
+.category-section:nth-child(2) { animation-delay: 0.1s; }
+.category-section:nth-child(3) { animation-delay: 0.2s; }
+.category-section:nth-child(4) { animation-delay: 0.3s; }
+.category-section:nth-child(5) { animation-delay: 0.4s; }
+.category-section:nth-child(n+6) { animation-delay: 0.5s; }
 
 .category-title {
   font-size: 14px;
@@ -90,12 +153,21 @@ button.active {
   margin-bottom: 25px;
   padding-bottom: 10px;
   border-bottom: 1px solid #2a2a2f;
+  transition: color 0.3s ease;
 }
 
 .item {
   margin-bottom: 20px;
   padding-bottom: 20px;
+  padding-left: 15px;
   border-bottom: 1px solid #1a1a1f;
+  border-left: 2px solid transparent;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.item:hover {
+  border-left-color: #d4af37;
+  padding-left: 18px;
 }
 
 .item:last-child {
@@ -109,12 +181,18 @@ button.active {
   color: #ffffff;
   margin-bottom: 2px;
   font-weight: 400;
+  transition: color 0.3s ease;
+}
+
+.item:hover .item-name {
+  color: #d4af37;
 }
 
 .item-status {
   font-size: 11px;
   letter-spacing: 1px;
   color: #999;
+  transition: all 0.3s ease;
 }
 
 .item-status.available {
@@ -131,6 +209,16 @@ button.active {
   opacity: 0.5;
   font-size: 13px;
   letter-spacing: 1px;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 0.7;
+  }
 }
 
 .error {
@@ -138,6 +226,13 @@ button.active {
   padding: 60px 20px;
   color: #b85c5c;
   font-size: 13px;
+  animation: shake 0.5s ease-out;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
 }
 
 .empty-message {
@@ -145,6 +240,7 @@ button.active {
   padding: 40px 20px;
   opacity: 0.5;
   font-size: 13px;
+  animation: fadeIn 0.4s ease-out;
 }
 </style>
 </head>
@@ -156,14 +252,8 @@ button.active {
   <div class="subtitle">Carte des boissons</div>
 </header>
 
-<div class="filters">
-  <button onclick="filter('all')" class="active">Tous</button>
-  <button onclick="filter('Cocktails')">Cocktails</button>
-  <button onclick="filter('Vins')">Vins</button>
-  <button onclick="filter('Spiritueux')">Spiritueux</button>
-  <button onclick="filter('Bières')">Bières</button>
-  <button onclick="filter('Sans alcool')">Sans alcool</button>
-  <button onclick="filter('After dinner')">After dinner</button>
+<div class="filters" id="filters">
+  <!-- Les boutons de filtrage seront générés dynamiquement ici -->
 </div>
 
 <div class="container" id="menu">
@@ -176,6 +266,7 @@ const SHEET_ID = "14WJ0G3f5frHAuu_1nt84rzOG8_ElEVEPudZHZgd0Dnw";
 const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv`;
 
 let dataGlobal = [];
+let allCategories = [];
 let currentFilter = 'all';
 
 fetch(SHEET_URL)
@@ -204,6 +295,11 @@ fetch(SHEET_URL)
 
       if(nom && cat) {
         dataGlobal.push({nom, cat, stock, available: stock > 0});
+        
+        // Extraire les catégories uniques dynamiquement
+        if(!allCategories.includes(cat)) {
+          allCategories.push(cat);
+        }
       }
     } catch(e) {
       console.warn(`Erreur parsing ligne ${idx}:`, e);
@@ -211,6 +307,11 @@ fetch(SHEET_URL)
   });
 
   console.log(`${dataGlobal.length} boissons chargées`);
+  console.log(`Catégories détectées:`, allCategories);
+  
+  // Générer les boutons de filtrage dynamiquement
+  generateFilters();
+  
   render(dataGlobal);
 })
 .catch(err => {
@@ -221,6 +322,26 @@ fetch(SHEET_URL)
   </div>`;
 });
 
+function generateFilters() {
+  const filtersDiv = document.getElementById("filters");
+  filtersDiv.innerHTML = "";
+  
+  // Ajouter le bouton "Tous"
+  const allBtn = document.createElement('button');
+  allBtn.textContent = "Tous";
+  allBtn.className = "active";
+  allBtn.onclick = () => filter('all');
+  filtersDiv.appendChild(allBtn);
+  
+  // Ajouter un bouton pour chaque catégorie détectée
+  allCategories.forEach(cat => {
+    const btn = document.createElement('button');
+    btn.textContent = cat;
+    btn.onclick = () => filter(cat);
+    filtersDiv.appendChild(btn);
+  });
+}
+
 function render(data){
   const menu = document.getElementById("menu");
   menu.innerHTML = "";
@@ -230,43 +351,48 @@ function render(data){
     return;
   }
 
-  // Grouper par catégorie
+  // Grouper par catégorie en respectant l'ordre des catégories détectées
   const grouped = {};
+  allCategories.forEach(cat => {
+    grouped[cat] = [];
+  });
+  
   data.forEach(item => {
-    if(!grouped[item.cat]) {
-      grouped[item.cat] = [];
+    if(grouped[item.cat]) {
+      grouped[item.cat].push(item);
     }
-    grouped[item.cat].push(item);
   });
 
   // Afficher par catégorie
-  Object.keys(grouped).forEach(cat => {
-    const section = document.createElement('div');
-    section.className = 'category-section';
-    
-    const title = document.createElement('div');
-    title.className = 'category-title';
-    title.textContent = cat;
-    section.appendChild(title);
-
-    grouped[cat].forEach(item => {
-      const itemDiv = document.createElement('div');
-      itemDiv.className = 'item';
+  allCategories.forEach(cat => {
+    if(grouped[cat].length > 0) {
+      const section = document.createElement('div');
+      section.className = 'category-section';
       
-      const name = document.createElement('div');
-      name.className = 'item-name';
-      name.textContent = item.nom;
-      itemDiv.appendChild(name);
+      const title = document.createElement('div');
+      title.className = 'category-title';
+      title.textContent = cat;
+      section.appendChild(title);
 
-      const status = document.createElement('div');
-      status.className = `item-status ${item.available ? 'available' : 'unavailable'}`;
-      status.textContent = item.available ? '✓ Disponible' : '✕ Rupture';
-      itemDiv.appendChild(status);
+      grouped[cat].forEach(item => {
+        const itemDiv = document.createElement('div');
+        itemDiv.className = 'item';
+        
+        const name = document.createElement('div');
+        name.className = 'item-name';
+        name.textContent = item.nom;
+        itemDiv.appendChild(name);
 
-      section.appendChild(itemDiv);
-    });
+        const status = document.createElement('div');
+        status.className = `item-status ${item.available ? 'available' : 'unavailable'}`;
+        status.textContent = item.available ? '✓ Disponible' : '✕ Rupture';
+        itemDiv.appendChild(status);
 
-    menu.appendChild(section);
+        section.appendChild(itemDiv);
+      });
+
+      menu.appendChild(section);
+    }
   });
 }
 
